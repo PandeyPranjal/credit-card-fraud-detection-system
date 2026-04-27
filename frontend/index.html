@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fraud Detection System</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<h2>Fraud Detection System</h2>
+
+<p>Enter 30 values (V1 → V28, Amount, Time) separated by commas:</p>
+
+<textarea id="data" rows="8" cols="70"
+placeholder="-10.64,5.91,-11.67,...,0.0,41233"></textarea>
+
+<br><br>
+
+<label>Threshold (0–1): </label>
+<input type="number" id="threshold" value="0.5" step="0.1" min="0" max="1">
+
+<br><br>
+
+<button onclick="predict()">Predict</button>
+
+<h3 id="result"></h3>
+
+<script>
+async function predict() {
+    try {
+        document.getElementById("result").innerText = "Processing...";
+
+        let rawData = document.getElementById("data").value
+                        .split(",")
+                        .map(Number);
+
+        let threshold = document.getElementById("threshold").value;
+
+        // ✅ Validation
+        if (rawData.length !== 30 || rawData.some(isNaN)) {
+            alert("Please enter exactly 30 valid numeric values.");
+            return;
+        }
+
+        // ✅ Map to backend format
+        const payload = {
+            V1: rawData[0], V2: rawData[1], V3: rawData[2], V4: rawData[3],
+            V5: rawData[4], V6: rawData[5], V7: rawData[6], V8: rawData[7],
+            V9: rawData[8], V10: rawData[9], V11: rawData[10], V12: rawData[11],
+            V13: rawData[12], V14: rawData[13], V15: rawData[14], V16: rawData[15],
+            V17: rawData[16], V18: rawData[17], V19: rawData[18], V20: rawData[19],
+            V21: rawData[20], V22: rawData[21], V23: rawData[22], V24: rawData[23],
+            V25: rawData[24], V26: rawData[25], V27: rawData[26], V28: rawData[27],
+            Amount: rawData[28], Time: rawData[29]
+        };
+
+        const response = await fetch(`http://localhost:8000/predict?threshold=${threshold}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error("Server error");
+        }
+
+        const result = await response.json();
+
+        document.getElementById("result").innerText =
+            `Prediction: ${result.prediction === 1 ? "FRAUD" : "LEGIT"} 
+Probability: ${result.fraud_probability.toFixed(6)}
+Threshold: ${result.threshold_used}`;
+
+    } catch (error) {
+        document.getElementById("result").innerText = "Error: " + error.message;
+    }
+}
+</script>
+
+</body>
+</html>
