@@ -173,4 +173,4 @@ https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud
 ## 👨‍💻 Author
 
 **PandeyPranjal**
-🔗 https://github.com/pranjalpandey007
+🔗 https://github.com/pandeypranjal
